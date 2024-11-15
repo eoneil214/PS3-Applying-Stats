@@ -4,3 +4,138 @@ format: html
 editor: visual
 ---
 
+## Problem Set 3
+
+setting things up
+
+```{r}
+rm(list = ls())
+library(here)
+library(tidyverse)
+library(ggfortify)
+```
+
+loading in the data
+
+```{r}
+bats <- read.csv(here("data", "bat_data.csv"))
+```
+
+clean up data
+
+```{r}
+bats$Species <- as.factor(bats$Species)
+bats$age <- as.factor(bats$age)
+bats$sex <- as.factor (bats$sex)
+```
+
+Does body mass differ between these five species of bats and, if so, how does body\
+mass differ between the species?
+
+```{r}
+#following the steps for an analysis we must start with a plot
+ggplot(bats, aes(x= Species, y= mass_g, fill = Species)) +
+  geom_bar(stat = "identity")
+```
+
+From this, it can be hypothesized that there is going to be a statistical significance between body mass and species. The LACI species seems to have the highest mean body mass around over 600g while the PESU species has a mean mass of 150g.
+
+```{r}
+#check the assumptions.
+ggplot(bats, aes(x= Species, y= mass_g)) +
+  geom_boxplot() + geom_point() + theme_bw()
+```
+
+```{r}
+#contruct the anova , the predictor variable is categorical and the response is a ratio data
+model.bat <- lm(mass_g ~ Species, data = bats )
+autoplot(model.bat)
+```
+
+```{r}
+#looking at the output 
+anova(model.bat)
+```
+
+From the output of the anova test, there is a significant difference difference between species and the mass. The p value is significantly less than .05. Body mass is highest in the LACI species and lowest in the PESU species. ( df= 4, F= 792.9, p= \< .05) .
+
+Does body length differ between these five species of bats and, if so, how does body\
+length differ between the species?
+
+```{r}
+#plot the data 
+ggplot(bats, aes(x= Species, y= body_length_mm, fill = Species)) +
+  geom_bar(stat = "identity")
+```
+
+```{r}
+#another plot for the data 
+ggplot(bats, aes(x= Species, y= body_length_mm)) +
+  geom_boxplot() + geom_point() + theme_bw()
+```
+
+```{r}
+#constructing the anova 
+model.length <- lm(body_length_mm ~ Species, data = bats )
+autoplot(model.length)
+```
+
+```{r}
+#output of the anova
+anova(model.length)
+```
+
+From the output of the anova test, there is a significant difference between species and the body length. The p value is less than 0 and significantly less than .05 so there is a difference between species. There is also a large f value which means high variance between groups than compared to within the group. ( df= 4, F= 70.498, p= \< .05)
+
+Is the number of ticks found on the bats associated with their sex or age?
+
+```{r}
+#plot the data
+ggplot(bats, aes(x= sex, y= tick_num)) +
+  geom_boxplot() + geom_point() + theme_bw()
+```
+
+```{r}
+#construct the t test because their is two groups to compare 
+model.tick <- lm(tick_num ~ sex, data = bats )
+autoplot(model.tick)
+```
+
+```{r}
+#run the t test 
+t.test(tick_num ~ sex, data = bats)
+```
+
+There is a significant difference between male and females and ticks which means ticks are associated with the sex of bats (t= -10.61, df= 117.45, p= \< .05 ) .
+
+```{r}
+#plot for age 
+ggplot(bats, aes(x= age, y= tick_num)) +
+  geom_boxplot() + geom_point() + theme_bw()
+```
+
+```{r}
+#construct model for age 
+model.tick <- lm(tick_num ~ age, data = bats )
+autoplot(model.tick)
+```
+
+```{r}
+#output of test for age 
+t.test(tick_num ~ age, data = bats)
+```
+
+There was not a significant difference between the ages of bats and the number of ticks with the p vale of 0.1 which is greater than .05 ( t= 1.629, df=122, p= 0.1059) . This means amount of ticks do not associate with the age of bats.
+
+Disregarding species, is there a relationship in bats between tail length and body length?
+
+```{r}
+ggplot(bats, aes(x= tail_length_mm , y= body_length_mm )) + geom_point() + theme_bw()
+```
+
+```{r}
+model_btl <- lm(body_length_mm ~ tail_length_mm , data = bats)
+autoplot(model_btl, smooth.colour = NA)
+```
+
+From this, there seems to be a positive linear relationship between tail length and body length.
